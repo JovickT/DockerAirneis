@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  db:
+    image: jovickt/airneis:mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ''
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      MYSQL_DATABASE: airneis
+    ports:
+      - "3306:3306"
+    volumes: 
+      - data-volume:/var/lib/mysql
+      - "./init.sql:/docker-entrypoint-initdb.d/init.sql"
+
+  backend:
+    image: jovickt/airneis:backend
+    ports:
+      - "8000:80"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=airneis
+      - DB_USER=root
+      - DB_PASSWORD=''
+    depends_on:
+      - db
+
+  airneis_web:
+    image: jovickt/airneis:web
+    container_name: airneis_web
+    ports:
+      - '3000:3000'
+    environment:
+      - BACKEND_URL=http://backend:80
+
